@@ -16,6 +16,7 @@ abstract class AbstractWorker implements iWorker
     public function setHead(Iterator $head)
     {
         $this->head = $head;
+        return $this;
     }
 
     public function getHead()

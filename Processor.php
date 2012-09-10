@@ -13,7 +13,6 @@ use ArrayIterator;
 use OutOfBoundsException;
 use ReflectionClass;
 use UnexpectedValueException;
-use Workers\HeadWorker;
 
 class Processor extends AbstractWorker
 {
@@ -23,12 +22,13 @@ class Processor extends AbstractWorker
     public function __construct(array $workers)
     {
         $this->workers = $workers;
-        $this->head = new HeadWorker();
-        $this->tail = $this->head;
     }
 
     public function addTask(iWorker $task)
     {
+        if (!$this->head) {
+            $this->head = $task;
+        }
         $task->setHead($this->tail);
         $this->tail = $task;
         return $this;
@@ -47,18 +47,35 @@ class Processor extends AbstractWorker
         if (is_array($data)) {
             $data = new ArrayIterator($data);
         }
-        $this->head = $data;
+        if ($this->head) {
+            $this->head->setHead($data);
+        } else {
+            $this->tail = $data;
+        }
         return $this;
+    }
+
+    public function getData()
+    {
+        if ($this->head) {
+            return $this->head->getHead();
+        } else {
+            return $this->tail;
+        }
     }
 
     public function process($data = NULL)
     {
         if ($data) {
+            $old = $this->getData();
             $this->setData($data);
         }
         $return = array();
         foreach ($this as $key => $value) {
             $return[$key] = $value;
+        }
+        if (isset($old)) {
+            $this->setData($old);
         }
         return $return;
     }
@@ -96,7 +113,6 @@ class Processor extends AbstractWorker
 
         return $this->addTask($worker);
     }
-
 
     public function current()
     {

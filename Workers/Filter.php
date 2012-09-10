@@ -32,15 +32,16 @@ class Filter extends AbstractWorker
         }
     }
 
-    public function reset()
+    public function rewind()
     {
+        parent::rewind();
         $this->move();
     }
 
-    protected function run($value, $key)
+    protected function next()
     {
+        parent::next();
         $this->move();
-        return $this->data->current();
     }
 
 }

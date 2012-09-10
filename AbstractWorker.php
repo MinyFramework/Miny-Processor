@@ -9,30 +9,43 @@
 
 namespace Modules\Processor;
 
-use Iterator;
-
 abstract class AbstractWorker implements iWorker
 {
-    protected $data;
+    protected $head;
 
-    public function setData(Iterator $data)
+    public function setHead(Iterator $head)
     {
-        $this->data = $data;
+        $this->head = $head;
     }
 
-    public function reset()
+    public function getHead()
     {
-
+        return $this->head;
     }
 
-    public function work()
+    public function current()
     {
-        $value = $this->data->current();
-        $key = $this->data->key();
-
-        return $this->run($value, $key);
+        return $this->head->current();
     }
 
-    abstract protected function run($value, $key);
+    public function key()
+    {
+        return $this->head->key();
+    }
+
+    public function next()
+    {
+        $this->head->next();
+    }
+
+    public function rewind()
+    {
+        $this->head->rewind();
+    }
+
+    public function valid()
+    {
+        return $this->head->valid();
+    }
 
 }

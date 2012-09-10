@@ -10,31 +10,27 @@
 namespace Modules\Processor;
 
 use ArrayIterator;
-use Iterator;
 use OutOfBoundsException;
+use ReflectionClass;
 use UnexpectedValueException;
+use Workers\HeadWorker;
 
-class Processor implements Iterator
+class Processor extends AbstractWorker
 {
-    private $data;
     private $workers;
-    private $task = array();
+    private $tail;
 
     public function __construct(array $workers)
     {
         $this->workers = $workers;
-    }
-
-    public function append(Processor $other)
-    {
-        array_walk($other->task, array($this, 'addTask'));
-        return $this;
+        $this->head = new HeadWorker();
+        $this->tail = $this->head;
     }
 
     public function addTask(iWorker $task)
     {
-        $task->setData($this->data);
-        $this->task[] = $task;
+        $task->setHead($this->tail);
+        $this->tail = $task;
         return $this;
     }
 
@@ -51,12 +47,7 @@ class Processor implements Iterator
         if (is_array($data)) {
             $data = new ArrayIterator($data);
         }
-        $this->data = $data;
-
-        foreach ($this->tasks as $task) {
-            $task->setData($data);
-        }
-
+        $this->head = $data;
         return $this;
     }
 
@@ -106,38 +97,30 @@ class Processor implements Iterator
         return $this->addTask($worker);
     }
 
+
     public function current()
     {
-        $value = $this->data->current();
-        $key = $this->data->key();
-
-        foreach ($this->task as $worker) {
-            $value = $worker->run($value, $key);
-        }
-        return $value;
+        return $this->tail->current();
     }
 
     public function key()
     {
-        return $this->data->key();
+        return $this->tail->key();
     }
 
     public function next()
     {
-        return $this->data->next();
+        $this->tail->next();
     }
 
     public function rewind()
     {
-        $this->data->rewind();
-        foreach ($this->workers as $worker) {
-            $worker->reset();
-        }
+        $this->tail->rewind();
     }
 
     public function valid()
     {
-        return $this->data->valid();
+        return $this->tail->valid();
     }
 
 }

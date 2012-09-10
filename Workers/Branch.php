@@ -34,8 +34,10 @@ class Branch extends AbstractWorker
         $this->false = $false;
     }
 
-    protected function run($value, $key)
+    protected function current()
     {
+        $value = parent::current();
+        $key = parent::key();
         if (call_user_func($this->condition, $value, $key)) {
             return call_user_func($this->true, $value, $key);
         }

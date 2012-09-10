@@ -11,9 +11,8 @@ namespace Modules\Processor;
 
 use Iterator;
 
-interface iWorker
+interface iWorker extends Iterator
 {
-    public function setData(Iterator $data);
-    public function reset();
-    public function work();
+    public function setHead(Iterator $head);
+    public function getHead();
 }

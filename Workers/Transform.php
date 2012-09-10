@@ -24,9 +24,9 @@ class Transform extends AbstractWorker
         $this->transform = $transform;
     }
 
-    protected function run($value, $key)
+    protected function current()
     {
-        return call_user_func($this->transfrom, $value, $key);
+        return call_user_func($this->transfrom, parent::current(), parent::key());
     }
 
 }

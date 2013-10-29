@@ -9,11 +9,11 @@
 
 namespace Modules\Processor;
 
-use Miny\Application\Application;
+use Miny\Application\BaseApplication;
 
 class Module extends \Miny\Application\Module
 {
-    public function init(Application $app)
+    public function init(BaseApplication $app)
     {
         $app->add('processor', __NAMESPACE__ . '\ProcessorFactory')
                 ->addProperty('transform', __NAMESPACE__ . '\Workers\Transform')
